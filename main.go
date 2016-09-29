@@ -3,63 +3,99 @@ package main
 import (
 	"flag"
 	"fmt"
-	"strings"
-	"./lib"
-	"./data"
-)
+	"os"
 
-const (
-	DATA = "dict_data.txt"
+	"github.com/zuiurs/godic/local"
+	"github.com/zuiurs/godic/thesaurus"
+	"github.com/zuiurs/godic/weblio"
 )
 
 func main() {
-	data, _ := data.Asset(DATA)
+	var syn, ant, local bool
+	flag.BoolVar(&syn, "s", false, "search synonym words (short)")
+	flag.BoolVar(&syn, "syn", false, "search synonym words")
 
-	dict := GenerateDict(data)
+	flag.BoolVar(&ant, "a", false, "search antonym words (short)")
+	flag.BoolVar(&ant, "ant", false, "search antonym words")
+
+	flag.BoolVar(&local, "l", false, "search from local dictionary (short)")
+	flag.BoolVar(&local, "local", false, "search from local dictionary")
 
 	flag.Parse()
-	words := flag.Args()
 
-	if len(words) == 0 {
-		fmt.Println("Error: Required at least an arguments")
-		return
+	if (syn && ant) || (ant && local) || (local && syn) {
+		fmt.Fprintln(os.Stderr, "Error: These option is exclusive")
+		os.Exit(1)
 	}
 
-	var state string
-	var ok bool
+	args := flag.Args()
 
-	for _, word := range words {
-		state, ok = dict[word]
-		if ok {
-			fmt.Printf("%s: %s\n", word, state)
+	if len(args) == 0 {
+		fmt.Fprintln(os.Stderr, "Error: Required at least an arguments")
+		os.Exit(1)
+	}
+
+	if syn || ant {
+		useThesaurus(args, syn)
+	} else if local {
+		useLocal(args)
+	} else {
+		useWeblio(args)
+	}
+
+}
+
+func useThesaurus(args []string, syn bool) {
+	for _, v := range args {
+		fmt.Printf("--<%s>--\n", v)
+
+		words, err := thesaurus.Search(v)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			continue
+		}
+		if syn {
+			words = thesaurus.SynSort(words)
 		} else {
-			fmt.Printf("%s: NODATA\n", word)
+			words = thesaurus.AntSort(words)
+		}
+
+		for i, w := range words {
+			// show 5 words
+			if i > 5 {
+				break
+			}
+			fmt.Println(w)
 		}
 	}
 }
 
-func GenerateDict(data []byte) map[string]string {
+func useWeblio(args []string) {
+	for _, v := range args {
+		fmt.Printf("--<%s>--\n", v)
 
-	dict := map[string]string{}
-
-	r := lib.NewReader(data)
-
-	var line []string
-	var keys []string
-	var state string
-
-	for str, err := r.ReadLine(); err == nil; {
-		line = strings.SplitN(str, "\t", 2)
-
-		keys = strings.Split(line[0], ",")
-		state = line[1]
-
-		for _, key := range keys {
-			dict[key] = state
+		words, err := weblio.Search(v)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			continue
 		}
 
-		str, err = r.ReadLine()
+		for _, w := range words {
+			fmt.Println(w)
+		}
 	}
+}
 
-	return dict
+func useLocal(args []string) {
+	for _, v := range args {
+		fmt.Printf("--<%s>--\n", v)
+
+		state, err := local.Search(v)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			continue
+		}
+
+		fmt.Println(state)
+	}
 }

@@ -1,25 +1,29 @@
 package local
 
 import (
+	"bufio"
+	"bytes"
 	"errors"
 	"strings"
-
-	"github.com/zuiurs/godic/lib"
 )
 
 //go-bindata.exe -o local/data.go -pkg local data/dict_data.txt
 
 const (
-	DATA = "data/dict_data.txt"
+	// Data is a path of dict_data.txt from application root.
+	Data = "data/dict_data.txt"
 )
 
 var (
+	// Dict is cache of dictionary map.
 	Dict = make(map[string]string)
 )
 
+// Search is search from local dictionary, and returns words array.
 func Search(w string) (string, error) {
+	// If have a cache, don't generate dictionary map.
 	if len(Dict) == 0 {
-		data, _ := Asset(DATA)
+		data, _ := Asset(Data)
 		Dict = generateDict(data)
 	}
 
@@ -30,26 +34,27 @@ func Search(w string) (string, error) {
 }
 
 func generateDict(data []byte) map[string]string {
+	dict := make(map[string]string)
 
-	dict := map[string]string{}
-
-	r := lib.NewReader(data)
+	sc := bufio.NewScanner(bytes.NewReader(data))
 
 	var line []string
-	var keys []string
-	var state string
+	var words []string
+	var desc string
 
-	for str, err := r.ReadLine(); err == nil; {
-		line = strings.SplitN(str, "\t", 2)
+	var buf string
+	for sc.Scan() {
+		buf = sc.Text()
 
-		keys = strings.Split(line[0], ",")
-		state = line[1]
+		// word, word \t description
+		line = strings.SplitN(buf, "\t", 2)
 
-		for _, key := range keys {
-			dict[key] = state
+		words = strings.Split(line[0], ",")
+		desc = strings.TrimSpace(line[1])
+
+		for _, word := range words {
+			dict[strings.TrimSpace(word)] = desc
 		}
-
-		str, err = r.ReadLine()
 	}
 
 	return dict

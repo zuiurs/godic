@@ -51,7 +51,7 @@ func extractWords(r io.Reader) ([]string, error) {
 
 	w := string(match[1])
 
-	var words []string
+	words := []string{w}
 
 	// delimiter: "、" or "; "
 	for _, r := range w {

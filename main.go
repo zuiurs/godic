@@ -62,9 +62,20 @@ func useThesaurus(args []string, syn bool) {
 
 		for i, w := range words {
 			// show 5 words
-			if i > 5 {
+			if i > 4 {
 				break
 			}
+
+			if syn {
+				if w.Class == thesaurus.ANTONYM {
+					break
+				}
+			} else {
+				if w.Class == thesaurus.SYNONYM {
+					break
+				}
+			}
+
 			fmt.Println(w)
 		}
 	}

@@ -59,7 +59,7 @@ func countingSort(ws []Word, isAsc bool) []Word {
 	offset := +3
 
 	for _, v := range ws {
-		dataCase[v.relevance+offset] = append(dataCase[v.relevance+offset], v)
+		dataCase[v.Relevance+offset] = append(dataCase[v.Relevance+offset], v)
 	}
 
 	sorted := make([]Word, 0, len(ws))
@@ -89,7 +89,7 @@ func FilterRelevance(ws []Word, rel int) ([]Word, error) {
 	}
 
 	for _, w := range ws {
-		if w.relevance == rel {
+		if w.Relevance == rel {
 			words = append(words, w)
 		}
 	}
@@ -106,7 +106,7 @@ func FilterLength(ws []Word, length int) ([]Word, error) {
 	}
 
 	for _, w := range ws {
-		if w.lengthRate == length {
+		if w.LengthRate == length {
 			words = append(words, w)
 		}
 	}
@@ -123,7 +123,7 @@ func FilterComplexity(ws []Word, comp int) ([]Word, error) {
 	}
 
 	for _, w := range ws {
-		if w.complexity == comp {
+		if w.Complexity == comp {
 			words = append(words, w)
 		}
 	}
@@ -140,7 +140,7 @@ func FilterUseCase(ws []Word, use int) ([]Word, error) {
 	}
 
 	for _, w := range ws {
-		if w.useCase == use {
+		if w.UseCase == use {
 			words = append(words, w)
 		}
 	}
@@ -163,7 +163,7 @@ func filterClass(ws []Word, class int) []Word {
 	words := make([]Word, 0, len(ws))
 
 	for _, w := range ws {
-		if w.class == class {
+		if w.Class == class {
 			words = append(words, w)
 		}
 	}

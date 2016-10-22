@@ -45,29 +45,29 @@ type Word struct {
 
 	// Word use case
 	// common or informal word (if not matches, sets None)
-	useCase int
+	UseCase int
 
 	// Word complexity
 	// range: 1 - 3
-	complexity int
+	Complexity int
 
 	// Word length
 	// range: 1 - 3
-	lengthRate int
+	LengthRate int
 
 	// Word class
 	// synonym or antonym
-	class int
+	Class int
 
 	// Word relevance
 	// range: 3 - -3 (0 excepted)
 	// More absolute value, more relevance.
 	// (Maybe we can judge synonyms and antonyms by this value.
 	// synonyms: 3 - 1, antonyms: -1 - -3)
-	relevance int
+	Relevance int
 
 	// Word spell
-	spell string
+	Spell string
 }
 
 // GenerateWords analyzes HTML body and returns Word struct array.
@@ -89,27 +89,27 @@ func GenerateWords(r io.Reader) ([]Word, error) {
 
 		var w Word
 
-		w.spell = string(tag[2])
+		w.Spell = string(tag[2])
 
 		for _, attr := range tagAttrs {
 			switch attr.key {
 			case "class": // "class" not equal Word.class
 				if attr.value == "common-word" {
-					w.useCase = COMMON
+					w.UseCase = COMMON
 				} else if attr.value == "informal-word" {
-					w.useCase = INFORMAL
+					w.UseCase = INFORMAL
 				} else {
-					w.useCase = NONE
+					w.UseCase = NONE
 				}
 			case "data-id":
 				w.id, err = strconv.Atoi(attr.value)
 			case "data-complexity":
-				w.complexity, err = strconv.Atoi(attr.value)
+				w.Complexity, err = strconv.Atoi(attr.value)
 			case "data-length":
-				w.lengthRate, err = strconv.Atoi(attr.value)
+				w.LengthRate, err = strconv.Atoi(attr.value)
 			case "data-category":
 				rel := strings.TrimPrefix(strings.SplitN(attr.value, "&quot;", -1)[3], "relevant-")
-				w.relevance, err = strconv.Atoi(rel)
+				w.Relevance, err = strconv.Atoi(rel)
 			}
 
 			if err != nil {
@@ -124,9 +124,9 @@ func GenerateWords(r io.Reader) ([]Word, error) {
 			1,2,3,4 is SYN, 4,5,6 is ANT.
 		*/
 		if i == w.id {
-			w.class = ANTONYM
+			w.Class = ANTONYM
 		} else {
-			w.class = SYNONYM
+			w.Class = SYNONYM
 		}
 
 		if i <= w.id {
@@ -138,27 +138,27 @@ func GenerateWords(r io.Reader) ([]Word, error) {
 }
 
 func (w Word) String() string {
-	return w.spell
+	return w.Spell
 }
 
 // VerboseString outputs verbose information.
 func (w Word) VerboseString() string {
 	var use, class string
-	if w.useCase == COMMON {
+	if w.UseCase == COMMON {
 		use = "Common"
-	} else if w.useCase == INFORMAL {
+	} else if w.UseCase == INFORMAL {
 		use = "Informal"
 	} else {
 		use = "None"
 	}
 
-	if w.class == SYNONYM {
+	if w.Class == SYNONYM {
 		class = "Synonym"
 	} else {
 		class = "Antonym"
 	}
 
 	return fmt.Sprintf("ID: %d\nUseCase: %s\nComplexity: %d\nLengthRate: %d\nClass: %s\nRelevance: %d\nSpell: %s\n",
-		w.id, use, w.complexity,
-		w.lengthRate, class, w.relevance, w.spell)
+		w.id, use, w.Complexity,
+		w.LengthRate, class, w.Relevance, w.Spell)
 }

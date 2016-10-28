@@ -69,3 +69,5 @@ go-bindata -o local/data.go -pkg local data/dict_data.txt
 
 - standardize return value of each dictionary api.
 - extend weblio api.
+- add an option serializing output
+- add interactive mode

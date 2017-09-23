@@ -71,3 +71,7 @@ go-bindata -o local/data.go -pkg local data/dict_data.txt
 - extend weblio api.
 - add an option serializing output
 - add interactive mode
+
+## License
+
+This software is released under the MIT License, see LICENSE.txt.
